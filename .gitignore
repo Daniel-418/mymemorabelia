@@ -1,0 +1,17 @@
+#virtual environment
+.venv/
+
+#python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+*.log
+
+#nvim
+*.swp
+*.swo
+*.swn
