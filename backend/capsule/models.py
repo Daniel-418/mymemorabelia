@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.forms import ValidationError
 
 # Create your models here.
 #Custom User to include timezone
@@ -36,8 +37,11 @@ class Capsule(models.Model):
             max_length=10,
         choices=Status.choices,
         default=Status.PENDING)
-    spotify_url = models.URLField(null=True, blank=True)
 
+
+# Helper method to get path of a capsule file if it's an attatchment.
+def path_to_capsule_item_file(instance, filename):
+    return "capsules/{}/{}".format(instance.capsule_id, filename)
 
 class CapsuleItem(models.Model):
     """
@@ -57,11 +61,30 @@ class CapsuleItem(models.Model):
     kind = models.CharField(max_length=50, choices=Kind.choices)
 
     url = models.URLField(null=True, blank=True)
-    file = models.FileField(null=True, blank=True)
-    file_type = models.FileField(blank=True, max_length=50)
+    file = models.FileField(upload_to=path_to_capsule_item_file, null=True,
+                            blank=True)
+    mime_type = models.CharField(blank=True, max_length=50)
     size_in_bytes = models.BigIntegerField(null=True, blank=True)
     position = models.PositiveIntegerField(default=0)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    # Require a url if capsule item is a link and require a file
+    # if capsule item is anything else
+    def clean(self) -> None:
+        if self.kind == self.Kind.MUSIC_LINK:
+            if not self.url:
+                raise ValidationError("Music link requires a valid url")
+            if self.file:
+                raise ValidationError("Music Link cannot contain a file")
+        else:
+            if not self.file:
+                raise ValidationError("A {} requires a file".format(self.kind))
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        if self.file and not self.size_in_bytes:
+            self.size_in_bytes = self.file.size
+        super().save(*args, **kwargs)
 
 class DeliveryLog(models.Model):
     """

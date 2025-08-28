@@ -104,6 +104,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "capsule.CustomUser"
 
+MEDIA_ROOT = BASE_DIR / "files"
+MEDIA_URL = "/files/"
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
