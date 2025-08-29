@@ -104,6 +104,7 @@ class CapsuleItemTests(TestCase):
 
         self.assertRaises(ValidationError, item.clean)
 
+    #Test postition and uploaded_at default values are correctly set
     def test_position_and_uploaded_at(self):
         content = b"1234"
         f = SimpleUploadedFile("image.png", content, content_type="image/png")
@@ -128,3 +129,5 @@ class CapsuleItemTests(TestCase):
         path = path_to_capsule_item_file(dummy, "dummy.png")
         self.assertEqual(path, "capsules/{}/dummy.png".format(dummy.capsule_id))
 
+
+## TODO DELIVERY LOG TESTS

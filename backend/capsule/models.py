@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
@@ -38,6 +39,11 @@ class Capsule(models.Model):
         choices=Status.choices,
         default=Status.PENDING)
 
+    def clean(self):
+        if self.deliver_on < timezone.now():
+            raise ValidationError("Date to be delivered must be in the future")
+
+
 
 # Helper method to get path of a capsule file if it's an attatchment.
 def path_to_capsule_item_file(instance, filename):
@@ -57,7 +63,7 @@ class CapsuleItem(models.Model):
         GIF = "gif", "GIF"
         MUSIC_LINK = "music_link", "Music Streaming App track link"
 
-    capsule = models.ForeignKey(Capsule, on_delete=models.CASCADE)
+    capsule = models.ForeignKey(Capsule, on_delete=models.CASCADE, related_name="capsule_item")
     kind = models.CharField(max_length=50, choices=Kind.choices)
 
     url = models.URLField(null=True, blank=True)
