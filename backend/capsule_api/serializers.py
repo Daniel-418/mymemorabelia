@@ -5,7 +5,7 @@ from rest_framework import serializers
 class CapsuleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model =  CapsuleItem
-        fields = "__all__"
+        exclude = ["capsule", "id"]
         read_only_fields = ["uploaded_at"]
 
     # Ensures that a url and no file is present if item is a music link
@@ -33,13 +33,13 @@ class CapsuleItemSerializer(serializers.ModelSerializer):
         return attrs
 
 class CapsuleSerializer(serializers.ModelSerializer):
-    capsule_item = CapsuleItemSerializer(many=True, read_only=True)
+    capsule_items = CapsuleItemSerializer(many=True, read_only=True)
 
     class Meta:
         model = Capsule
-        fields = ["title", "body", "deliver_on", "capsule_item",
-                  "owner", "status", "delivered_at"]
-        read_only_fields = ["status", "delivered_at", "owner"]
+        fields = ["id", "title", "body", "deliver_on",
+                  "owner", "status", "delivered_at", "capsule_items"]
+        read_only_fields = ["id", "status", "delivered_at", "owner"]
 
     #Ensure that the date capsule is delivered is in the future
     def validate(self,  attrs):

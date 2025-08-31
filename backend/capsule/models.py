@@ -66,7 +66,7 @@ class CapsuleItem(models.Model):
         GIF = "gif", "GIF"
         MUSIC_LINK = "music_link", "Music Streaming App track link"
 
-    capsule = models.ForeignKey(Capsule, on_delete=models.CASCADE, related_name="capsule_item")
+    capsule = models.ForeignKey(Capsule, on_delete=models.CASCADE, related_name="capsule_items")
     kind = models.CharField(max_length=50, choices=Kind.choices)
 
     url = models.URLField(null=True, blank=True)

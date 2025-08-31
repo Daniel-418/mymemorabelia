@@ -54,8 +54,7 @@ class Login(APIView):
 
 # Creates a capsule and sets the owner to the current
 # authenticated user.
-class CreateCapsule(mixins.CreateModelMixin,
-                   generics.GenericAPIView):
+class CreateCapsule(generics.CreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CapsuleSerializer
@@ -64,8 +63,7 @@ class CreateCapsule(mixins.CreateModelMixin,
         serializer.save(owner=self.request.user)
 
 # Creates a capsule item and attatches it to a capsule
-class CreateCapsuleItem(mixins.CreateModelMixin,
-                        generics.GenericAPIView):
+class CreateCapsuleItem(generics.CreateAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CapsuleItemSerializer
@@ -79,18 +77,16 @@ class CreateCapsuleItem(mixins.CreateModelMixin,
 
 # Lists Capsules that have already been delivered.
 # (capsules that have not yet been delivered are still buried and inaccessible)
-class ListCapsules(mixins.ListModelMixin,
-                   generics.GenericAPIView):
+class ListCapsules(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CapsuleSerializer
 
     def get_queryset(self): # pyright: ignore
-        return Capsule.objects.filter(status=Capsule.Status.SENT, owner=self.request.user)
+        return Capsule.objects.filter(owner=self.request.user)
 
 
-class ListCapsuleItems(mixins.ListModelMixin,
-                   generics.GenericAPIView):
+class ListCapsuleItems(generics.ListAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CapsuleItemSerializer
