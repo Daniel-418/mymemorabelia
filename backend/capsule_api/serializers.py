@@ -1,5 +1,5 @@
 from django.utils import timezone
-from capsule.models import Capsule, CapsuleItem, DeliveryLog
+from capsule.models import Capsule, CapsuleItem, DeliveryLog, CustomUser
 from rest_framework import serializers
 
 class CapsuleItemSerializer(serializers.ModelSerializer):
@@ -53,3 +53,15 @@ class DeliveryLogSerializer(serializers.ModelSerializer):
         model = DeliveryLog
         fields = ["id", "capsule", "attempted_at", "result"]
         read_only_fields = fields
+
+# Serializer for a created user
+class CustomUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=0)
+
+    class Meta:
+        model = CustomUser
+        fields = ["id", "username", "email", "timezone", "password"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+    def create(self, validated_data):
+        return CustomUser.objects.create_user(**validated_data)

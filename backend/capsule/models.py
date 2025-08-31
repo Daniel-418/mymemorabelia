@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django.forms import ValidationError
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 #Custom User to include timezone
@@ -11,6 +11,9 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
 
 class Capsule(models.Model):
@@ -32,7 +35,7 @@ class Capsule(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     title = models.CharField(max_length=100)
     body = models.TextField()
-    deliver_on = models.DateTimeField(editable=False)
+    deliver_on = models.DateTimeField()
     delivered_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
             max_length=10,
