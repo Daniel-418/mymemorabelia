@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-lg2*8b2pi5cwr*7$)0uoys0$3-%l5sim^p(21e*rxsg_2w!-w1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["mymemorabelia.com", "www.mymemorabelia.com"]
 
 
 # Application definition
