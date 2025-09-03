@@ -30,9 +30,13 @@ DEBUG = (ENV != "prod")
 # Get allowed hosts from .env and split them to a list to be assigned to the setting ALLOWED_HOSTS
 _dot_env_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = []
-for i in _dot_env_hosts.split(","): 
-    i = i.strip()
-    ALLOWED_HOSTS.append(i)
+
+if ENV == "dev":
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+else:
+    for i in _dot_env_hosts.split(","): 
+        i = i.strip()
+        ALLOWED_HOSTS.append(i)
 
 
 # Application definition
