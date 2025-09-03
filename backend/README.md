@@ -70,8 +70,11 @@ To run the project on your local machine, follow these steps.
 
 ### 1. Environment Variables (.env)
 The project reads settings from environment variables in settings.py. Set ENV correctly:
+
 ENV=dev → local development
+
 DEBUG on, SQLite, local files.
+
 ALLOWED_HOSTS auto: 127.0.0.1, localhost.
 
 ENV=prod → production
