@@ -31,7 +31,7 @@ DEBUG = (ENV != "prod")
 _dot_env_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = []
 
-if ENV == "dev":
+if ENV == "prod":
     ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 else:
     for i in _dot_env_hosts.split(","): 
