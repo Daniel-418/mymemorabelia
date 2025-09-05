@@ -31,7 +31,7 @@ DEBUG = (ENV != "prod")
 _dot_env_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = []
 
-if ENV == "prod":
+if ENV == "dev":
     ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 else:
     for i in _dot_env_hosts.split(","): 
@@ -195,6 +195,10 @@ if ENV == "prod":
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    CSRF_TRUSTED_ORIGINS = [
+        "https://mymemorabelia.com",
+        "https://www.mymemorabelia.com",
+    ]
     # 1 year HSTS by default
     SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_HSTS_SECONDS", "31536000"))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
