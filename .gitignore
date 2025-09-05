@@ -4,6 +4,8 @@ files/
 #python
 __pycache__/
 *.py[cod]
+.env
+*.env
 *.pyo
 *.pyd
 *.so
