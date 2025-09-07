@@ -9,6 +9,8 @@ django-storages==1.14.6
 django-stubs==5.2.2
 django-stubs-ext==5.2.2
 djangorestframework==3.16.0
+ffmpeg-python==0.2.0
+future==1.0.0
 greenlet==3.2.3
 jmespath==1.0.1
 msgpack==1.1.1

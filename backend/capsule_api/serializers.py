@@ -5,7 +5,7 @@ from rest_framework import serializers
 class CapsuleItemSerializer(serializers.ModelSerializer):
     class Meta:
         model =  CapsuleItem
-        exclude = ["capsule", "id"]
+        exclude = ["capsule", "id", "size_in_bytes"]
         read_only_fields = ["uploaded_at"]
 
     # Ensures that a url and no file is present if item is a music link
@@ -14,6 +14,7 @@ class CapsuleItemSerializer(serializers.ModelSerializer):
         kind = attrs["kind"]
         file = attrs.get("file")
         url = attrs.get("url")
+        text =  attrs.get("text")
 
         errors = {}
 
@@ -22,11 +23,24 @@ class CapsuleItemSerializer(serializers.ModelSerializer):
                 errors["url"] = "required for a music_link"
             if file:
                 errors["file"] = "Must be empty for music_link"
+            if text:
+                errors["text"] = "Must be empty for a music_link"
+
+        elif kind == CapsuleItem.Kind.TEXT:
+            if not text:
+                errors["text"] = "Required for a text type"
+            if file:
+                errors["file"] = "Must be empty for a text type"
+            if url:
+                errors["url"] = "Must be empty for a text type"
+
         else:
             if not file:
                 errors["file"] = "Required for {}".format(kind)
             if url:
                 errors["url"] = "Must be empty for non-link kinds."
+            if text:
+                errors["text"] = "Must be empty for media kinds."
 
         if errors:
             raise serializers.ValidationError(errors)
@@ -37,7 +51,7 @@ class CapsuleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Capsule
-        fields = ["id", "title", "body", "deliver_on",
+        fields = ["id", "title", "deliver_on",
                   "owner", "status", "delivered_at", "capsule_items"]
         read_only_fields = ["id", "status", "delivered_at", "owner"]
 

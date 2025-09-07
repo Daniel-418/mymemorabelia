@@ -1,6 +1,10 @@
+import os
+import ffmpeg
+import uuid
 from django.utils import timezone
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 
@@ -33,8 +37,8 @@ class Capsule(models.Model):
         FAILED = "failed", "Failed"
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    delivery_email = models.EmailField(blank=True, null=True)
     title = models.CharField(max_length=100)
-    body = models.TextField()
     deliver_on = models.DateTimeField()
     delivered_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
@@ -42,9 +46,23 @@ class Capsule(models.Model):
         choices=Status.choices,
         default=Status.PENDING)
 
+    # index the fields that would be queried for better performance
+    class Meta:
+        indexes = [
+            models.Index(fields=["deliver_on", "status"])
+        ]
+
     def clean(self):
         if self.deliver_on < timezone.now():
             raise ValidationError("Date to be delivered must be in the future")
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            self.full_clean()
+        if not self.delivery_email:
+            self.delivery_email = self.owner.email
+
+        return super().save(*args, **kwargs)
 
 
 
@@ -52,14 +70,20 @@ class Capsule(models.Model):
 def path_to_capsule_item_file(instance, filename):
     return "capsules/{}/{}".format(instance.capsule_id, filename)
 
+# Helper method to get path of a video thumbnail to be used in the inline mail delivery
+def path_to_capsule_thumbnail(instance, filename):
+    return "capsules/{}/thumbnails/{}".format(instance.capsule_id, filename)
+
 class CapsuleItem(models.Model):
     """
-    File attached to a capsule - must be a picture, video, or audio clip
-    Stored file metadata for validation
-    Notes position of item in capsule
+    - File attached to a capsule: must be a picture, video, or audio clip
+    - Stored file metadata for validation
+    - Notes position of item in capsule
+    - Generates a video thumbnail to be  used inline for mail delivery on save.
     """
 
     class Kind(models.TextChoices):
+        TEXT = "text", "Text"
         IMAGE = "image", "Image"
         VIDEO = "video", "Video"
         AUDIO = "audio", "Audio / Voice Note"
@@ -68,14 +92,23 @@ class CapsuleItem(models.Model):
 
     capsule = models.ForeignKey(Capsule, on_delete=models.CASCADE, related_name="capsule_items")
     kind = models.CharField(max_length=50, choices=Kind.choices)
+    text = models.TextField(null=True, blank=True)
 
     url = models.URLField(null=True, blank=True)
     file = models.FileField(upload_to=path_to_capsule_item_file, null=True,
                             blank=True)
+    video_thumbnail = models.ImageField(editable=False, blank=True,
+                                        upload_to=path_to_capsule_thumbnail, null=True)
     mime_type = models.CharField(blank=True, max_length=50)
     size_in_bytes = models.BigIntegerField(null=True, blank=True)
     position = models.PositiveIntegerField(default=0)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    # ensures that two items cannot have the same position
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["capsule", "position"], name="unique_position")
+        ]
 
     # Require a url if capsule item is a link and require a file
     # if capsule item is anything else
@@ -85,15 +118,73 @@ class CapsuleItem(models.Model):
                 raise ValidationError("Music link requires a valid url")
             if self.file:
                 raise ValidationError("Music Link cannot contain a file")
+        elif self.kind == self.Kind.TEXT:
+            if not self.text:
+                raise ValidationError("Text item requires content in the text field")
+            if self.file:
+                raise ValidationError("Text item cannot contain a file")
         else:
             if not self.file:
                 raise ValidationError("A {} requires a file".format(self.kind))
+            if self.url or self.text:
+                raise ValidationError("A {} cannot contain a text or url".format(self.kind))
 
+    #set's position if capsule item is new and position is not set
+    def _set_position(self):
+        if self._state.adding and self.position == 0:
+            max_position = CapsuleItem.objects.filter(capsule=self.capsule).aggregate(
+                max_position=models.Max("position")
+            ).get('max_position')
+
+            if max_position is None:
+                self.position = 0
+            else:
+                self.position = max_position + 1
+
+    # generates a thumbnail to set in the video_thumbnail field
+    def _generate_video_thumbnail(self):
+        temp_thumbnail_path = f"/tmp/{uuid.uuid4()}.jpg"
+
+        #build an ffmpeg command to create an image from the first frame
+        #of the video
+        try:
+            (
+                ffmpeg
+                .input(self.file.path, ss=1)
+                .output(temp_thumbnail_path, vframes=1)
+                .run(quiet=True, overwrite_output=True)
+            )
+            with open(temp_thumbnail_path, "rb") as f:
+                image_file = ContentFile(f.read())
+            self.video_thumbnail.save(f"{(self.pk or 'new')}thumbnail.jpeg", image_file, save=False)
+
+        except ffmpeg.Error as e:
+            err = getattr(e, "stderr", b"").decode(errors="ignore")
+            raise Exception(f"Error generating thumbnail for {self.file.path}: {err}")
+        finally:
+            if os.path.exists(temp_thumbnail_path):
+                os.remove(temp_thumbnail_path)
+
+    @transaction.atomic
     def save(self, *args, **kwargs):
         self.full_clean()
+
+        is_new = self._state.adding
+
+        # compute derived fields before first save
+        self._set_position()
+
+        # set file size automatically
         if self.file and not self.size_in_bytes:
             self.size_in_bytes = self.file.size
+
+        #save to db to ensure pk and file on disk
         super().save(*args, **kwargs)
+
+        if is_new and self.kind == self.Kind.VIDEO and self.file and not self.video_thumbnail:
+            self._generate_video_thumbnail()
+            super().save(update_fields=["video_thumbnail"])
+
 
 class DeliveryLog(models.Model):
     """
