@@ -19,7 +19,6 @@ class MailDelivery():
         Fetches all capsules that are due to be delivered and sends them.
         """
         # Use prefetch_related with the correct related_name to avoid N+1 queries.
-        # Assuming the related_name on your CapsuleItem model is 'items'.
         due_capsules = Capsule.objects.filter(
             deliver_on__lte=timezone.now(),
             status=Capsule.Status.PENDING,

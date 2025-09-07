@@ -52,7 +52,7 @@ class CapsuleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Capsule
         fields = ["id", "title", "deliver_on",
-                  "owner", "status", "delivered_at", "capsule_items"]
+                  "owner", "status", "delivered_at", "delivery_email", "capsule_items"]
         read_only_fields = ["id", "status", "delivered_at", "owner"]
 
     #Ensure that the date capsule is delivered is in the future
