@@ -1,0 +1,12 @@
+Your time capsule from {{ capsule.created_at|date:"M d, Y" }} is ready.
+
+---
+{{ capsule.title }}
+---
+
+To open your capsule, please visit the following link:
+{{ url }}
+
+
+--
+Sent via Memorabilia

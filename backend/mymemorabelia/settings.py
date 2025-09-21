@@ -29,6 +29,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 ENV = os.getenv("ENV", "dev")
 DEBUG = (ENV != "prod")
+SITE_URL = "https://mymemorabelia.com/"
 
 # Get allowed hosts from .env and split them to a list to be assigned to the setting ALLOWED_HOSTS
 _dot_env_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", "")
@@ -209,7 +210,7 @@ if ENV == "prod":
 
 
 # Email settings
-if ENV == "prod":
+if ENV == "dev":
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
     # SMTP server configurations

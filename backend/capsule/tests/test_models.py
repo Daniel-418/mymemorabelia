@@ -22,7 +22,6 @@ class CapsuleTests(TestCase):
         capsule = Capsule.objects.create(
             owner = self.user,
             title = "First Capsule",
-            body = "This is a test capsule to chek if capsule works",
             deliver_on = timezone.now() + timedelta(days=1),
         )
 
@@ -40,8 +39,7 @@ class CapsuleItemTests(TestCase):
         self.capsule = Capsule.objects.create(
             owner = self.user,
             title = "First Capsule",
-            body = "This is a test capsule to chek if capsule works",
-            deliver_on = timezone.now(),
+            deliver_on = timezone.now() + timedelta(days=1),  # Future date to pass validation
         )
 
     # Test that a music link has a valid url and no file

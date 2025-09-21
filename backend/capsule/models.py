@@ -1,10 +1,7 @@
-import os
-import ffmpeg
 import uuid
 from django.utils import timezone
 from django.db import models, transaction
 from django.conf import settings
-from django.core.files.base import ContentFile
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 
@@ -41,10 +38,17 @@ class Capsule(models.Model):
     title = models.CharField(max_length=100)
     deliver_on = models.DateTimeField()
     delivered_at = models.DateTimeField(null=True, blank=True)
+    opened_at = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
             max_length=10,
         choices=Status.choices,
         default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    view_token = models.UUIDField(
+        default=uuid.uuid4,
+        editable=False,
+        unique=True
+    )
 
     # index the fields that would be queried for better performance
     class Meta:
@@ -97,8 +101,6 @@ class CapsuleItem(models.Model):
     url = models.URLField(null=True, blank=True)
     file = models.FileField(upload_to=path_to_capsule_item_file, null=True,
                             blank=True)
-    video_thumbnail = models.ImageField(editable=False, blank=True,
-                                        upload_to=path_to_capsule_thumbnail, null=True)
     mime_type = models.CharField(blank=True, max_length=50)
     size_in_bytes = models.BigIntegerField(null=True, blank=True)
     position = models.PositiveIntegerField(default=0)
@@ -142,35 +144,11 @@ class CapsuleItem(models.Model):
                 self.position = max_position + 1
 
     # generates a thumbnail to set in the video_thumbnail field
-    def _generate_video_thumbnail(self):
-        temp_thumbnail_path = f"/tmp/{uuid.uuid4()}.jpg"
 
-        #build an ffmpeg command to create an image from the first frame
-        #of the video
-        try:
-            (
-                ffmpeg
-                .input(self.file.path, ss=1)
-                .output(temp_thumbnail_path, vframes=1)
-                .run(quiet=True, overwrite_output=True)
-            )
-            with open(temp_thumbnail_path, "rb") as f:
-                image_file = ContentFile(f.read())
-            self.video_thumbnail.save(f"{(self.pk or 'new')}thumbnail.jpeg", image_file, save=False)
-
-        except ffmpeg.Error as e:
-            err = getattr(e, "stderr", b"").decode(errors="ignore")
-            raise Exception(f"Error generating thumbnail for {self.file.path}: {err}")
-        finally:
-            if os.path.exists(temp_thumbnail_path):
-                os.remove(temp_thumbnail_path)
 
     @transaction.atomic
     def save(self, *args, **kwargs):
         self.full_clean()
-
-        is_new = self._state.adding
-
         # compute derived fields before first save
         self._set_position()
 
@@ -181,9 +159,6 @@ class CapsuleItem(models.Model):
         #save to db to ensure pk and file on disk
         super().save(*args, **kwargs)
 
-        if is_new and self.kind == self.Kind.VIDEO and self.file and not self.video_thumbnail:
-            self._generate_video_thumbnail()
-            super().save(update_fields=["video_thumbnail"])
 
 
 class DeliveryLog(models.Model):
