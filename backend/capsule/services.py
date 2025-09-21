@@ -52,7 +52,7 @@ class MailDelivery():
                 msg = EmailMultiAlternatives(
                     subject=subject,
                     body=text_content,
-                    to=[f"{capsule.delivery_email}"],
+                    to=[capsule.delivery_email],
                     from_email=settings.DEFAULT_FROM_EMAIL
                 )
                 msg.attach_alternative(html_content, "text/html")

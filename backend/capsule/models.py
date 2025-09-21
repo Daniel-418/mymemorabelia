@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 # Create your models here.
 #Custom User to include timezone
 class CustomUser(AbstractUser):
-    timezone = models.CharField(max_length=20)
+    timezone = models.CharField(max_length=60)
     email = models.EmailField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -73,10 +73,6 @@ class Capsule(models.Model):
 # Helper method to get path of a capsule file if it's an attatchment.
 def path_to_capsule_item_file(instance, filename):
     return "capsules/{}/{}".format(instance.capsule_id, filename)
-
-# Helper method to get path of a video thumbnail to be used in the inline mail delivery
-def path_to_capsule_thumbnail(instance, filename):
-    return "capsules/{}/thumbnails/{}".format(instance.capsule_id, filename)
 
 class CapsuleItem(models.Model):
     """
@@ -143,14 +139,10 @@ class CapsuleItem(models.Model):
             else:
                 self.position = max_position + 1
 
-    # generates a thumbnail to set in the video_thumbnail field
-
-
     @transaction.atomic
     def save(self, *args, **kwargs):
-        self.full_clean()
-        # compute derived fields before first save
         self._set_position()
+        self.full_clean()
 
         # set file size automatically
         if self.file and not self.size_in_bytes:

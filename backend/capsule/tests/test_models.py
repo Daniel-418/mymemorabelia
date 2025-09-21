@@ -19,15 +19,30 @@ class CapsuleTests(TestCase):
         username="TestUser", email="test@example.com", password="pass", timezone="UTC")
 
     def test_capsule_creation(self):
+
+        t0 = timezone.now()
         capsule = Capsule.objects.create(
             owner = self.user,
             title = "First Capsule",
             deliver_on = timezone.now() + timedelta(days=1),
         )
+        t1 = timezone.now()
 
         self.assertEqual(capsule.status, Capsule.Status.PENDING)
         self.assertIsNone(capsule.delivered_at)
         self.assertEqual(capsule.owner, self.user)
+        self.assertTrue(t0 <= capsule.created_at <= t1)
+        self.assertIsNotNone(capsule.view_token)
+        self.assertIsNone(capsule.opened_at)
+        self.assertEqual(capsule.delivery_email, "test@example.com")
+
+        #test capsule created in the past
+        with self.assertRaises(ValidationError):
+            capsule1 = Capsule.objects.create(
+                owner = self.user,
+                title = "Second Capsule",
+                deliver_on = timezone.now() - timedelta(days=1)
+            )
 
 @override_settings(MEDIA_ROOT="/tmp/django_tests")
 class CapsuleItemTests(TestCase):
@@ -42,6 +57,56 @@ class CapsuleItemTests(TestCase):
             deliver_on = timezone.now() + timedelta(days=1),  # Future date to pass validation
         )
 
+    def test_position_and_file_size(self):
+        #test default position
+        item = CapsuleItem(
+            capsule=self.capsule,
+            kind=CapsuleItem.Kind.TEXT,
+            text="This is the thing that I've been telling you about" 
+        )
+        item.full_clean()
+        item.save()
+        
+        self.assertEqual(item.position, 0)
+        self.assertEqual(item.capsule, self.capsule)
+
+        #test that position auto increments
+        item2 = CapsuleItem(
+            capsule=self.capsule,
+            kind=CapsuleItem.Kind.TEXT,
+            text="dummy text"
+        )
+        item2.save()
+        self.assertEqual(item2.position, 1)
+
+        item3 = CapsuleItem(
+            capsule=self.capsule,
+            kind=CapsuleItem.Kind.TEXT,
+            text="dummy text"
+        )
+        item3.save()
+        self.assertEqual(item3.position, 2)
+
+        #test that position is unique
+        with self.assertRaises(ValidationError):
+            CapsuleItem.objects.create(
+                capsule=self.capsule,
+                kind=CapsuleItem.Kind.TEXT,
+                text="dujmmy",
+                position=2
+            )
+
+        # test that file size is set automatically
+        content = b"1234"
+        f = SimpleUploadedFile("image.png", content, content_type="image/png")
+
+        item5 = CapsuleItem.objects.create(
+            capsule=self.capsule,
+            kind=CapsuleItem.Kind.IMAGE,
+            file=f
+        )
+        self.assertEqual(item5.size_in_bytes, f.size)
+
     # Test that a music link has a valid url and no file
     def test_music_link(self):
         content = b"1234"
@@ -53,7 +118,6 @@ class CapsuleItemTests(TestCase):
             kind=CapsuleItem.Kind.MUSIC_LINK,
             url="https://open.spotify.com/track/sample"
         )
-        item.full_clean()
         item.save()
         self.assertFalse(item.file)
         self.assertIsNone(item.file.name)
