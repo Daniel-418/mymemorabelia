@@ -1,5 +1,7 @@
 #virtual environment
 .venv/
+venv/
+env/
 files/
 #python
 __pycache__/
@@ -19,3 +21,9 @@ db.sqlite3
 *.swp
 *.swo
 *.swn
+
+#node
+frontend/node_modules/
+
+/static_root/
+/staticfiles/
