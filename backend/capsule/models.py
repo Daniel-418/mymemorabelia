@@ -32,6 +32,7 @@ class Capsule(models.Model):
         PENDING = "pending", "Pending"
         SENT = "sent", "Sent"
         FAILED = "failed", "Failed"
+        DRAFT = "draft", "Draft"
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     delivery_email = models.EmailField(blank=True, null=True)
@@ -42,7 +43,7 @@ class Capsule(models.Model):
     status = models.CharField(
             max_length=10,
         choices=Status.choices,
-        default=Status.PENDING)
+        default=Status.DRAFT)
     created_at = models.DateTimeField(auto_now_add=True)
     view_token = models.UUIDField(
         default=uuid.uuid4,
