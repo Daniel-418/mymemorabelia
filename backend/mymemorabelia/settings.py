@@ -191,7 +191,7 @@ if ENV == "prod":
 else:
     STATIC_URL = "/static/"
     MEDIA_URL = "/files/"
-    STATIC_ROOT = BASE_DIR / "staticfiles"
+    STATICFILES_DIRS = [BASE_DIR / "static"]
     MEDIA_ROOT = BASE_DIR / "files"
 
 # Recommended security settings from the documentation:
