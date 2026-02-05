@@ -28,7 +28,7 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 ENV = os.getenv("ENV", "dev")
-DEBUG = (ENV != "prod")
+DEBUG = ENV != "prod"
 SITE_URL = "https://mymemorabelia.com/"
 
 # Get allowed hosts from .env and split them to a list to be assigned to the setting ALLOWED_HOSTS
@@ -38,7 +38,7 @@ ALLOWED_HOSTS = []
 if ENV == "dev":
     ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 else:
-    for i in _dot_env_hosts.split(","): 
+    for i in _dot_env_hosts.split(","):
         i = i.strip()
         ALLOWED_HOSTS.append(i)
 
@@ -56,8 +56,10 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "capsule",
     "capsule_api",
+    "drf_spectacular",
 ]
 
+REST_FRAMEWORK = {"DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"}
 # Install storages in production
 if ENV == "prod":
     INSTALLED_APPS += ["storages"]
@@ -157,12 +159,14 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 if ENV == "prod":
-    #AWS configuration
+    # AWS configuration
     AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
     AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
     AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
     AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-    AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN", f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com")
+    AWS_S3_CUSTOM_DOMAIN = os.getenv(
+        "AWS_S3_CUSTOM_DOMAIN", f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+    )
     AWS_S3_FILE_OVERWRITE = False
 
     STORAGES = {
@@ -174,7 +178,6 @@ if ENV == "prod":
                 "custom_domain": AWS_S3_CUSTOM_DOMAIN,
             },
         },
-
         "staticfiles": {
             "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
             "OPTIONS": {
