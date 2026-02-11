@@ -52,5 +52,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  nginx:
+    image: nginx:1.25
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./backend/static:/app/static # Share static files
+      - ./backend/files:/app/files # Share media files
+    depends_on:
+      - web
+
 volumes:
   postgres_data:
