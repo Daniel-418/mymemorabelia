@@ -1,6 +1,9 @@
+# type: ignore
 import os
-from pathlib import Path
 from dotenv import load_dotenv
+from pathlib import Path
+import environ
+from celery import Celery
 
 """
 Django settings for mymemorabelia project.
@@ -14,25 +17,24 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
-
+env = environ.Env(DEBUG=(bool, False))
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-ENV = os.getenv("ENV", "dev")
+ENV = env("ENV", default="dev")
 DEBUG = ENV != "prod"
 SITE_URL = "https://mymemorabelia.com/"
 
 # Get allowed hosts from .env and split them to a list to be assigned to the setting ALLOWED_HOSTS
-_dot_env_hosts = os.getenv("DJANGO_ALLOWED_HOSTS", "")
+_dot_env_hosts = env("DJANGO_ALLOWED_HOSTS", default="")
 ALLOWED_HOSTS = []
 
 if ENV == "dev":
@@ -60,6 +62,11 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {"DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"}
+SPECTACULAR_SETTINGS = {
+    "TITLE": "E-commerce",
+    "DESCRIPTION": "API for an e-commerce backend",
+    "VERSION": "1.0.0",
+}
 # Install storages in production
 if ENV == "prod":
     INSTALLED_APPS += ["storages"]
@@ -98,18 +105,8 @@ WSGI_APPLICATION = "mymemorabelia.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 # Use Postgres in prod and use sqlite in local dev
-if ENV == "prod":
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv("POSTGRES_DB"),
-            "USER": os.getenv("POSTGRES_USER"),
-            "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-            "HOST": os.getenv("POSTGRES_HOST", "127.0.0.1"),
-            "PORT": os.getenv("POSTGRES_PORT", "5432"),
-            "CONN_MAX_AGE": 60,
-        }
-    }
+if ENV == "dev":
+    DATABASES = {"default": env.db("DATABASE_URL")}
 else:
     DATABASES = {
         "default": {
@@ -160,11 +157,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 if ENV == "prod":
     # AWS configuration
-    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-    AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME")
-    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-    AWS_S3_CUSTOM_DOMAIN = os.getenv(
+    AWS_ACCESS_KEY_ID = env("AWS_ACCESS_KEY_ID")
+    AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME")
+    AWS_SECRET_ACCESS_KEY = env("AWS_SECRET_ACCESS_KEY")
+    AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
+    AWS_S3_CUSTOM_DOMAIN = env(
         "AWS_S3_CUSTOM_DOMAIN", f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
     )
     AWS_S3_FILE_OVERWRITE = False
@@ -207,23 +204,23 @@ if ENV == "prod":
         "https://www.mymemorabelia.com",
     ]
     # 1 year HSTS by default
-    SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_HSTS_SECONDS", "31536000"))
+    SECURE_HSTS_SECONDS = int(env("DJANGO_HSTS_SECONDS", default=31536000))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
 
 # Email settings
-if ENV == "dev":
+if ENV == "prod":
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
     # SMTP server configurations
-    EMAIL_HOST = os.getenv("EMAIL_HOST")
-    EMAIL_PORT = os.getenv("EMAIL_PORT", 587)
+    EMAIL_HOST = env("EMAIL_HOST")
+    EMAIL_PORT = env("EMAIL_PORT", 587)
     EMAIL_USE_TLS = True
     EMAIL_USE_SSL = False
-    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-    DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
+    EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+    DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
