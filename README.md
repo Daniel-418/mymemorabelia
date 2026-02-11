@@ -11,6 +11,14 @@ MyMemorabilia is a digital time capsule service designed to capture and rediscov
 - **RESTful API:** A well-documented API for all functionalities, allowing for integration with any frontend application.
 - **Cloud Storage:** Seamlessly uses AWS S3 for file storage in production for scalability and performance.
 
+## Core Concepts
+
+The application is built around the idea of a **Capsule**, a container for digital memories. Each capsule has a title, a body, and a `deliver_on` date. Users can attach various items to their capsules, such as images, videos, and links to music.
+
+The project is divided into two main Django apps:
+* `capsule`: Contains the core business logic and data models.
+* `capsule_api`: Exposes the `capsule` app's functionality through a RESTful API.
+
 ## Architecture & Tech Stack
 
 MyMemorabilia is built on a modern, scalable architecture:
@@ -23,6 +31,15 @@ MyMemorabilia is built on a modern, scalable architecture:
 - **File Storage:** The application uses the local filesystem for development and **AWS S3** for production to handle large volumes of user-uploaded files.
 - **API Documentation:** API endpoints are automatically documented using **drf-spectacular**, providing interactive Swagger and ReDoc interfaces.
 - **Frontend:** A simple HTML/CSS frontend styled with **TailwindCSS**.
+
+## Database Schema
+The application uses a database with the following models:
+* **CustomUser:** Extends the default Django User model, using email as the unique identifier and adding a `timezone` field.
+* **Capsule:** The main model for time capsules, containing fields for the owner, title, body, delivery date, and status.
+* **CapsuleItem:** Represents a file or a link attached to a capsule.
+* **DeliveryLog:** Logs the attempts to deliver a capsule to a user.
+
+It uses Postgresql for production and the default sqlite for local development.
 
 ## API Documentation
 
@@ -112,43 +129,59 @@ The deployment was provisioned using the following architecture and steps:
 
 ## Local Development Setup
 
+To run the project on your local machine, follow these steps.
+
 1.  **Clone the repository:**
     ```bash
     git clone https://github.com/your-username/mymemorabelia.git
     cd mymemorabelia
     ```
 
-2.  **Set up environment variables for local development:**
-    - Create a `.env` file in the `backend/` directory.
+2.  **Configure Environment Variables (.env)**
+    - Create a file named `.env` in the `backend/` directory.
+    - For local development, you only need to define the following variables. The `ENV=dev` setting ensures the app runs with `DEBUG` on, uses SQLite, and stores files locally.
+
     ```env
     # .env for local development
-    ENV=dev
-    DJANGO_SECRET_KEY='a-good-local-secret-key'
+    ENV="dev"
+    DJANGO_SECRET_KEY='your-super-secret-key-goes-here-change-me'
     DATABASE_URL=sqlite:///db.sqlite3
     ```
+    *Note: You can generate a new `DJANGO_SECRET_KEY` using an online generator or a simple Python script.*
 
-3.  **Set up the Python virtual environment:**
+3.  **Set up the Python Virtual Environment:**
     ```bash
     cd backend
     python3 -m venv venv
     source venv/bin/activate
+    ```
+
+4.  **Install Dependencies:**
+    ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Run database migrations:**
+5.  **Run Database Migrations:**
     ```bash
     python manage.py migrate
     ```
 
-5.  **Start the development server:**
+6.  **Start the Development Server:**
     ```bash
     python manage.py runserver
     ```
-    The API will be available at `http://127.0.0.1:8000/`.
+    The API will now be available at `http://127.0.0.1:8000/`.
 
-6.  **Run Celery Worker (in a separate terminal):**
+7.  **Run the Celery Worker (in a separate terminal):**
+    - Make sure your virtual environment is activated.
     ```bash
     celery -A mymemorabelia worker --loglevel=info
+    ```
+    
+8.  **Run the Celery Beat Scheduler (in a separate terminal):**
+    - Make sure your virtual environment is activated.
+    ```bash
+    celery -A mymemorabelia beat --loglevel=info
     ```
 
 ## Future Work
