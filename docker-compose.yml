@@ -1,4 +1,17 @@
 services:
+  npm:
+    image: "jc21/nginx-proxy-manager:latest"
+    restart: unless-stopped
+    container_name: npm
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    volumes:
+      - ./npm-data:/data
+      - ./npm-letsencrypt:/etc/letsencrypt
+    depends_on:
+      - web
   web:
     build: ./backend
     ports:
