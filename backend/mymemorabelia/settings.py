@@ -39,7 +39,12 @@ _dot_env_hosts = env("DJANGO_ALLOWED_HOSTS", default="")
 ALLOWED_HOSTS = []
 
 if ENV == "dev":
-    ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+    ALLOWED_HOSTS = [
+        "127.0.0.1",
+        "localhost",
+        "mymemorabelia.com",
+        "www.mymemorabelia.com",
+    ]
 else:
     for i in _dot_env_hosts.split(","):
         i = i.strip()
