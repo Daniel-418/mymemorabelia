@@ -17,7 +17,7 @@ from django.contrib.auth import authenticate
 class Register(APIView):
     permission_classes = [AllowAny]
 
-    @extend_schema(request=CustomUserSerializer, responses={201, CustomUserSerializer})
+    @extend_schema(request=CustomUserSerializer, responses={201: CustomUserSerializer})
     def post(self, request):
         serializer = CustomUserSerializer(data=request.data)
         if serializer.is_valid():

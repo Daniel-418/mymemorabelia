@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import index
+from .views import project_home
 
 app_name = "capsule"
-urlpatterns= [
-    path("", index, name="home"),
+urlpatterns = [
+    path("", project_home, name="home"),
 ]
