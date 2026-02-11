@@ -1,9 +1,18 @@
 from celery import shared_task
 from capsule.services import MailDelivery
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @shared_task
 def send_due_capsules_task():
-    print("Starting capsule delivery task...")
-    MailDelivery.send_due_capsules()
-    print("Capsule delivery task finished.")
+    logger.info("Starting capsule delivery task...")
+    try:
+        MailDelivery.send_due_capsules()
+        logger.info("Capsule delivery task finished.")
+        return "Capsules Sent"
+    except Exception as e:
+        logger.error(f"Error sending capsules: {e}")
+        raise e
+

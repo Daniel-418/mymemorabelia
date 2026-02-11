@@ -1,4 +1,5 @@
 # type: ignore
+from celery.schedules import crontab
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -59,6 +60,7 @@ INSTALLED_APPS = [
     "capsule",
     "capsule_api",
     "drf_spectacular",
+    "django_celery_beat",
 ]
 
 REST_FRAMEWORK = {"DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema"}
@@ -224,3 +226,19 @@ if ENV == "prod":
 
 else:
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Celery settings
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://redis:6379/0")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://redis:6379/0")
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+
+CELERY_BEAT_SCHEDULE = {
+    "send-capsules-every-minute": {
+        "task": "capsule.tasks.send_due_capsules_task",
+        "schedule": crontab(minute="*"),  # Runs every minute
+    },
+}
