@@ -1,6 +1,6 @@
 # MyMemorabilia
 
-MyMemorabilia is a digital time capsule service designed to capture and rediscover memories. It allows users to create capsules containing notes, photos, videos, and music, which are then automatically delivered to their email on a specified future date. This project is built with a robust Django backend, containerized with Docker, and designed for scalable deployment.
+MyMemorabilia is a digital time capsule service designed to capture and rediscover memories. It allows users to create capsules containing notes, photos, videos, and music, which are then automatically delivered to their email on a specified future date. This project is live and deployed at **mymemorabelia.com**. It is built with a robust Django backend, containerized with Docker, and designed for scalable deployment.
 
 ## Features
 
@@ -54,7 +54,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
   "email": "test@example.com",
   "password": "strongpassword123",
   "timezone": "UTC"
-}' http://localhost:8000/api/register/
+}' https://mymemorabelia.com/api/register/
 ```
 
 **2. Log in:**
@@ -63,7 +63,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
 curl -X POST -H "Content-Type: application/json" -d '{
   "email": "test@example.com",
   "password": "strongpassword123"
-}' http://localhost:8000/api/login/
+}' https://mymemorabelia.com/api/login/
 ```
 **Response:**
 ```json
@@ -79,72 +79,36 @@ curl -X POST -H "Content-Type: application/json" -d '{
 curl -X POST -H "Authorization: Token YOUR_AUTH_TOKEN" -H "Content-Type: application/json" -d '{
   "title": "My First Capsule",
   "deliver_on": "2028-02-10T10:00:00Z"
-}' http://localhost:8000/api/capsules/create/
+}' https://mymemorabelia.com/api/capsules/create/
 ```
 
 **4. Add a file to a capsule:**
 
 ```bash
-curl -X POST -H "Authorization: Token YOUR_AUTH_TOKEN" -F "kind=image" -F "file=@/path/to/your/image.jpg" http://localhost:8000/api/capsules/1/items/create/
+curl -X POST -H "Authorization: Token YOUR_AUTH_TOKEN" -F "kind=image" -F "file=@/path/to/your/image.jpg" https://mymemorabelia.com/api/capsules/1/items/create/
 ```
 
 ## Deployment
 
-The application is designed to be deployed on a cloud provider like AWS using Docker.
+The application is live at **mymemorabelia.com**, deployed on an AWS EC2 instance using a fully containerized setup.
 
-### Deployment Architecture
+### Deployment Architecture & Process
 
-- An **AWS EC2 instance** hosts the application.
-- **Docker Compose** orchestrates the services defined in `docker-compose.yml`: `web` (Django), `db` (Postgres), `redis`, `celery_worker`, `celery_beat`, and `nginx`.
-- **Nginx** acts as a reverse proxy, routing external traffic to the Django application and serving static/media files directly.
-- **PostgreSQL** runs in a separate container for the database.
-- **AWS S3** is used for storing user-uploaded media files and static assets.
-- **AWS SES (Simple Email Service)** is intended for sending emails, though it is pending approval.
+The deployment was provisioned using the following architecture and steps:
 
-### Deployment Steps
+- **Infrastructure**: An **AWS EC2 instance** was set up to host the application.
+- **Containerization**: **Docker** and **Docker Compose** are at the core of the deployment. The `docker-compose.yml` file defines all the necessary services (`web`, `db`, `redis`, `celery_worker`, `celery_beat`, and `nginx`) and their configurations, ensuring a reproducible and isolated environment.
+- **Reverse Proxy**: **Nginx** is used as a reverse proxy. It listens on port 80, handles incoming HTTP requests, and forwards them to the Django `web` container. It is also configured to serve static and media files directly for better performance.
+- **Database**: A **PostgreSQL** database runs in a dedicated Docker container, with its data persisted in a Docker volume to prevent data loss across container restarts.
+- **File Storage**: For production, the application was configured to use **AWS S3**. All user-uploaded media files and static assets are stored in an S3 bucket, which is more scalable and decoupled from the application server.
+- **Configuration**:
+    1.  The repository was cloned onto the EC2 instance.
+    2.  A `.env` file was created in the `backend/` directory to hold all production secrets and configuration variables, such as database credentials, AWS keys, and the Django secret key.
+    3.  The `ENV` variable was set to `prod` to activate all production settings (e.g., PostgreSQL, S3 storage, and stricter security).
+- **Execution**:
+    The application was launched by running `docker-compose up --build -d`. This command built the images, started all services, and the `entrypoint.sh` script in the `web` container ran the database migrations automatically.
 
-1.  **Clone the repository on your EC2 instance:**
-    ```bash
-    git clone https://github.com/your-username/mymemorabelia.git
-    cd mymemorabelia
-    ```
-
-2.  **Create and configure the environment file:**
-    - In the `backend/` directory, create a `.env` file.
-    - This file should contain production-level secrets and configurations. See `backend/mymemorabelia/settings.py` for all possible variables.
-
-    **Example `backend/.env` for production:**
-    ```env
-    ENV=prod
-    DJANGO_SECRET_KEY='your-production-secret-key'
-    DJANGO_ALLOWED_HOSTS='yourdomain.com,www.yourdomain.com'
-
-    # Postgres Settings
-    POSTGRES_DB=mydb
-    POSTGRES_USER=myuser
-    POSTGRES_PASSWORD=mypassword
-    DATABASE_URL=postgres://myuser:mypassword@db:5432/mydb
-
-    # AWS Settings
-    AWS_ACCESS_KEY_ID='your-aws-access-key'
-    AWS_SECRET_ACCESS_KEY='your-aws-secret-key'
-    AWS_STORAGE_BUCKET_NAME='your-s3-bucket-name'
-    AWS_S3_REGION_NAME='your-s3-region'
-    AWS_S3_CUSTOM_DOMAIN='your-s3-custom-domain' # e.g., d123.cloudfront.net
-
-    # Email Settings (Pending AWS Approval)
-    # EMAIL_HOST='email-smtp.your-region.amazonaws.com'
-    # EMAIL_HOST_USER='your-smtp-username'
-    # EMAIL_HOST_PASSWORD='your-smtp-password'
-    # DEFAULT_FROM_EMAIL='noreply@yourdomain.com'
-    ```
-    **Note on Email:** The email functionality is implemented, but email delivery is paused pending AWS SES approval. For now, emails will be printed to the console in development mode.
-
-3.  **Build and run the containers:**
-    ```bash
-    docker-compose up --build -d
-    ```
-    This command will build the Docker images, start all services in detached mode, and apply database migrations as specified in `entrypoint.sh`.
+**Note on Email:** The email functionality is implemented using Celery for asynchronous delivery. However, the system is currently awaiting final approval from AWS Simple Email Service (SES). Once approved, the production environment variables for email will be fully configured to enable delivery.
 
 ## Local Development Setup
 
