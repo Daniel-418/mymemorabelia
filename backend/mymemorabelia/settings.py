@@ -44,6 +44,7 @@ if ENV == "dev":
         "localhost",
         "mymemorabelia.com",
         "www.mymemorabelia.com",
+        "3.96.68.250",
     ]
 else:
     for i in _dot_env_hosts.split(","):
