@@ -28,4 +28,4 @@ ENTRYPOINT ["./entrypoint.sh"]
 EXPOSE 8000
 
 # use gunicorn to start the server
-CMD ["gunicorn", "mymemorabelia.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD ["gunicorn", "mymemorabelia.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "1"]

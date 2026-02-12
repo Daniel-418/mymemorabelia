@@ -23,7 +23,7 @@ services:
   celery_worker:
     build: ./backend
     container_name: celery_worker
-    command: celery -A mymemorabelia worker --loglevel=info
+    command: celery -A mymemorabelia worker --loglevel=info --concurrency=1 --max-memory-per-child=10000
     env_file:
       - ./backend/.env
     depends_on:
@@ -51,6 +51,7 @@ services:
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    command: postgres -c shared_buffers=64MB -c max_connections=20
 
   nginx:
     image: nginx:1.25
