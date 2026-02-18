@@ -27,3 +27,6 @@ frontend/node_modules/
 
 /static_root/
 /staticfiles/
+
+#scripts
+*script.sh
