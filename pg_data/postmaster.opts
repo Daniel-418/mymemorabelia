@@ -1,0 +1,1 @@
+/usr/lib/postgresql/16/bin/postgres "-c" "shared_buffers=64MB" "-c" "max_connections=20"

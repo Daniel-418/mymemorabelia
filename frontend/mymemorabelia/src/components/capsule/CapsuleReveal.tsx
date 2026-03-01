@@ -22,7 +22,7 @@ export default function CapsuleReveal({ items }: CapsuleRevealProps) {
         >
           <div className="relative w-32 h-44 mx-auto mb-6">
             {/* Capsule body */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-b from-gray-300 via-gray-400 to-gray-500 shadow-lg group-hover:shadow-xl transition-shadow">
+            <div className="absolute inset-0 rounded-full bg-gray-400 shadow-lg group-hover:shadow-xl transition-shadow">
               {/* Band */}
               <div className="absolute top-1/2 -translate-y-1/2 w-full h-4 bg-gray-600/40" />
               {/* Highlight */}
@@ -48,7 +48,7 @@ export default function CapsuleReveal({ items }: CapsuleRevealProps) {
       {/* Shrunken capsule */}
       <div className="flex justify-center mb-8">
         <div className="relative w-16 h-22">
-          <div className="w-16 h-22 rounded-full bg-gradient-to-b from-gray-300 via-gray-400 to-gray-500 shadow-md">
+          <div className="w-16 h-22 rounded-full bg-gray-400 shadow-md">
             <div className="absolute top-1/2 -translate-y-1/2 w-full h-2 bg-gray-600/40" />
             <div className="absolute top-2 left-2 w-2 h-5 rounded-full bg-white/30" />
           </div>

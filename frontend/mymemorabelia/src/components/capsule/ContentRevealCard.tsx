@@ -26,13 +26,13 @@ function ContentPreview({ item }: { item: CapsuleItemLocal }) {
     case 'image':
     case 'gif':
       return (
-        <div className="w-full h-48 rounded-lg bg-gradient-to-br from-rose-100 to-rose-200 flex items-center justify-center">
+        <div className="w-full h-48 rounded-lg bg-rose-100 flex items-center justify-center">
           <span className="text-4xl text-rose-400">{'\u{1F5BC}'}</span>
         </div>
       )
     case 'video':
       return (
-        <div className="w-full h-48 rounded-lg bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center relative">
+        <div className="w-full h-48 rounded-lg bg-purple-100 flex items-center justify-center relative">
           <div className="w-14 h-14 rounded-full bg-white/80 flex items-center justify-center shadow-md">
             <span className="text-purple-500 text-xl ml-1">{'\u25B6'}</span>
           </div>
@@ -57,7 +57,7 @@ function ContentPreview({ item }: { item: CapsuleItemLocal }) {
       )
     case 'music_link':
       return (
-        <div className="flex items-center gap-3 bg-gradient-to-r from-green-50 to-green-100 rounded-lg px-4 py-3">
+        <div className="flex items-center gap-3 bg-green-50 rounded-lg px-4 py-3">
           <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white shrink-0">
             {'\u266A'}
           </div>

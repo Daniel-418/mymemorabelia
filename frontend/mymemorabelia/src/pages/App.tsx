@@ -6,6 +6,7 @@ import CapsuleList from './CapsuleList'
 import CreateCapsuleForm from './CreateCapsuleForm'
 import ViewMemory from './ViewMemory'
 import SignUpScreen from './SignUpScreen'
+import ProtectedRoute from '../components/layout/ProtectedRoute'
 
 export default function App() {
   return (
@@ -14,9 +15,13 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/signup" element={<SignUpScreen />} />
-        <Route path="/capsules" element={<CapsuleList />} />
-        <Route path="/capsules/new" element={<CreateCapsuleForm />} />
-        <Route path="/capsules/:id" element={<ViewMemory />} />
+        
+        <Route element={<ProtectedRoute />}>
+          <Route path="/capsules" element={<CapsuleList />} />
+          <Route path="/capsules/new" element={<CreateCapsuleForm />} />
+          <Route path="/capsules/:id" element={<ViewMemory />} />
+        </Route>
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

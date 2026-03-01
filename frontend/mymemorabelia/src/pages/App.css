@@ -12,10 +12,8 @@
   --color-pending: #F59E0B;
   --color-failed: #DC2626;
   --color-teal-dark: #1E3A3A;
-  --color-gold-start: #D4A547;
-  --color-gold-end: #C4912A;
-  --color-gold-hover-start: #C4912A;
-  --color-gold-hover-end: #B8841F;
+  --color-gold: #D4A547;
+  --color-gold-hover: #C4912A;
 
   /* Fonts */
   --font-heading: 'DM Serif Display', serif;
@@ -25,40 +23,11 @@
 /* Topographic background pattern */
 .bg-topographic {
   background-color: var(--color-cream);
-  background-image:
-    repeating-radial-gradient(
-      circle at 20% 50%,
-      transparent 0,
-      transparent 40px,
-      rgba(180, 170, 155, 0.06) 41px,
-      transparent 42px
-    ),
-    repeating-radial-gradient(
-      circle at 80% 30%,
-      transparent 0,
-      transparent 60px,
-      rgba(180, 170, 155, 0.05) 61px,
-      transparent 62px
-    ),
-    repeating-radial-gradient(
-      circle at 50% 80%,
-      transparent 0,
-      transparent 50px,
-      rgba(180, 170, 155, 0.04) 51px,
-      transparent 52px
-    ),
-    repeating-radial-gradient(
-      circle at 30% 20%,
-      transparent 0,
-      transparent 70px,
-      rgba(180, 170, 155, 0.03) 71px,
-      transparent 72px
-    );
 }
 
 /* Gold gradient button */
 .btn-gold {
-  background: linear-gradient(to bottom, var(--color-gold-start), var(--color-gold-end));
+  background: var(--color-gold);
   color: white;
   font-weight: 600;
   border-radius: 0.5rem;
@@ -71,7 +40,7 @@
 }
 
 .btn-gold:hover {
-  background: linear-gradient(to bottom, var(--color-gold-hover-start), var(--color-gold-hover-end));
+  background: var(--color-gold-hover);
   box-shadow: 0 4px 12px rgba(196, 145, 42, 0.45);
   transform: translateY(-1px);
 }

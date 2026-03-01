@@ -5,7 +5,7 @@ interface PendingCardProps {
 
 export default function PendingCard({ title, daysRemaining }: PendingCardProps) {
   return (
-    <div className="relative rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 via-amber-100/60 to-amber-50 border border-amber-200/50 p-5 shadow-sm">
+    <div className="relative rounded-xl overflow-hidden bg-amber-50 border border-amber-200/50 p-5 shadow-sm">
       {/* Blurred title preview */}
       <div className="blur-sm select-none mb-6">
         <div className="h-4 w-3/4 bg-amber-200/50 rounded mb-2" />

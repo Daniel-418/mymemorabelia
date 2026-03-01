@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
+    "corsheaders",
     "capsule",
     "capsule_api",
     "drf_spectacular",
@@ -82,6 +83,7 @@ if ENV == "prod":
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -248,3 +250,14 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute="*"),  # Runs every minute
     },
 }
+
+if ENV == "dev":
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "https://mymemorabelia.com",
+        "https://www.mymemorabelia.com",
+    ]

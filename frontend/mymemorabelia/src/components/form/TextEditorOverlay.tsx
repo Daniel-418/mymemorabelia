@@ -16,10 +16,10 @@ export default function TextEditorOverlay({ isOpen, onDone, onCancel }: TextEdit
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="w-full max-w-xl mx-4">
         {/* Top scroll roll */}
-        <div className="h-4 rounded-t-full bg-gradient-to-b from-amber-700/40 to-amber-600/20" />
+        <div className="h-4 rounded-t-full bg-amber-700/30" />
 
         {/* Parchment panel */}
-        <div className="bg-gradient-to-b from-amber-50 via-amber-100/80 to-amber-50 px-8 py-6 shadow-xl">
+        <div className="bg-amber-50 px-8 py-6 shadow-xl">
           <h2 className="font-heading text-2xl text-amber-900 text-center mb-4">
             Write Your Memory
           </h2>
@@ -59,7 +59,7 @@ export default function TextEditorOverlay({ isOpen, onDone, onCancel }: TextEdit
         </div>
 
         {/* Bottom scroll roll */}
-        <div className="h-4 rounded-b-full bg-gradient-to-t from-amber-700/40 to-amber-600/20" />
+        <div className="h-4 rounded-b-full bg-amber-700/30" />
       </div>
     </div>
   )

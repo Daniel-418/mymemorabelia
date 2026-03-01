@@ -15,10 +15,10 @@ export default function LandingPage() {
       {/* CSS Time Capsule Illustration */}
       <div className="relative w-64 h-44 mb-12">
         {/* Ground/water wave */}
-        <div className="absolute bottom-0 left-0 right-0 h-16 rounded-full bg-gradient-to-r from-teal-dark/10 via-teal-dark/20 to-teal-dark/10" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 rounded-full bg-teal-dark/15" />
 
         {/* Capsule body */}
-        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-20 h-32 rounded-full bg-gradient-to-b from-gray-300 via-gray-400 to-gray-500 shadow-lg rotate-[-20deg]">
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 w-20 h-32 rounded-full bg-gray-400 shadow-lg rotate-[-20deg]">
           {/* Capsule band */}
           <div className="absolute top-1/2 -translate-y-1/2 w-full h-3 bg-gray-600/40" />
           {/* Capsule highlight */}
