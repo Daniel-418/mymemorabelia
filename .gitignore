@@ -30,3 +30,17 @@ frontend/node_modules/
 
 #scripts
 *script.sh
+
+#ai tools
+.claude/
+.cursor/
+.cursorignore
+.cursorrules
+.copilot/
+.github/copilot-instructions.md
+.aider*
+.continue/
+CLAUDE.md
+.gemini/
+GEMINI.md
+design/
